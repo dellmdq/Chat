@@ -7,8 +7,8 @@ import java.util.Scanner;
 
 public class Client {
     private Socket socket;
-    private DataInputStream inputBuffer = null;
-    private DataOutputStream outputBuffer = null;
+    private BufferedReader inputBuffer = null;
+    private PrintStream outputBuffer = null;
     Scanner text = new Scanner(System.in);
     final String TERMINATION_COMMAND = "X";
 
@@ -28,8 +28,8 @@ public class Client {
 
     public void buffer() {
         try {
-            inputBuffer = new DataInputStream(socket.getInputStream());
-            outputBuffer = new DataOutputStream(socket.getOutputStream());
+            inputBuffer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            outputBuffer = new PrintStream(socket.getOutputStream());
             outputBuffer.flush();
         } catch (IOException e) {
             showText("Error getting buffers.");
@@ -38,9 +38,9 @@ public class Client {
 
     public void send(String s) {
         try {
-            outputBuffer.writeUTF(s);
+            outputBuffer.println(s);
             outputBuffer.flush();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showText("IOException on send");
         }
     }
@@ -78,7 +78,7 @@ public class Client {
         String st = "";
         try {
             do {
-                st = (String) inputBuffer.readUTF();
+                st = inputBuffer.readLine();
                 showText("\n[Server] => " + st);
                 System.out.print("\n[You] => ");
             } while (!st.equals(TERMINATION_COMMAND));

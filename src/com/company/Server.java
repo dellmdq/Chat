@@ -1,8 +1,6 @@
 package com.company;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -11,8 +9,8 @@ public class Server {
 
     private Socket socket;
     private ServerSocket serverSocket;
-    private DataInputStream inputBuffer = null;
-    private DataOutputStream outputBuffer = null;
+    private BufferedReader inputBuffer = null;
+    private PrintStream outputBuffer = null;
     Scanner scanner = new Scanner(System.in);
     final String TERMINATION_COMMAND = "X";
 
@@ -29,8 +27,8 @@ public class Server {
     }
     public void buffer() {
         try {
-            inputBuffer = new DataInputStream(socket.getInputStream());
-            outputBuffer = new DataOutputStream(socket.getOutputStream());
+            inputBuffer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            outputBuffer = new PrintStream(socket.getOutputStream());
             outputBuffer.flush();
         } catch (IOException e) {
             showText("Error opening buffers.");
@@ -41,7 +39,7 @@ public class Server {
         String st = "";
         try {
             do {
-                st = (String) inputBuffer.readUTF();
+                st = (String) inputBuffer.readLine();
                 showText("\n[Client] => " + st);
                 System.out.print("\n[You] => ");
             } while (!st.equals(TERMINATION_COMMAND));
@@ -53,9 +51,9 @@ public class Server {
 
     public void send(String s) {
         try {
-            outputBuffer.writeUTF(s);
+            outputBuffer.println(s);
             outputBuffer.flush();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showText("Error on send(): " + e.getMessage());
         }
     }
